@@ -1,0 +1,208 @@
+# TypeScript Types Organization Strategy
+
+## Overview
+Use a **hybrid approach** combining colocation for component-specific types and centralized types for shared data models.
+
+## 🎯 Strategy 1: Colocation for Component-Specific Types
+
+### When to Use
+- Types used by only one component and its immediate children
+- Component-specific props and state interfaces
+- Local utility types
+
+### Implementation
+
+#### Option A: Inline Types (Preferred for simple components)
+```typescript
+// ✅ DO: Define types directly above the component
+type ButtonProps = {
+  label: string;
+  variant?: 'primary' | 'secondary' | 'danger';
+  onClick?: () => void;
+};
+
+export const Button = ({ label, variant = 'primary', onClick }: ButtonProps) => {
+  // Component implementation
+};
+```
+
+#### Option B: Separate .types.ts File (For complex components)
+```typescript
+// ✅ DO: Create UserProfile.types.ts for complex types
+export interface UserProfileData {
+  id: string;
+  name: string;
+  email: string;
+  lastLogin: Date;
+}
+
+export interface UserProfileProps {
+  user: UserProfileData;
+  onEdit: (id: string) => void;
+}
+```
+
+## 📁 Strategy 2: Centralized Directory for Shared Types
+
+### When to Use
+- Types representing core application data models
+- API response/request types used across multiple components
+- Global state management types
+- Utility types used throughout the application
+
+### Directory Structure
+```
+src/
+├── types/
+│   ├── index.ts          # Re-export all types
+│   ├── api.ts            # Generic API response wrappers
+│   ├── user.ts           # User-related types
+│   ├── product.ts        # Product-related types
+│   └── global.d.ts       # Global ambient types
+```
+
+### Examples
+
+#### Shared Data Models
+```typescript
+// ✅ DO: Define core types in centralized location
+export interface User {
+  id: number;
+  username: string;
+  email: string;
+  isAdmin: boolean;
+}
+
+export interface Product {
+  id: string;
+  name: string;
+  price: number;
+  category: string;
+}
+```
+
+#### Generic API Types
+```typescript
+// ✅ DO: Create reusable API response wrappers
+export interface PaginatedResponse<T> {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: T[];
+}
+
+export interface ApiResponse<T> {
+  data: T;
+  success: boolean;
+  message?: string;
+}
+```
+
+## 🤝 Best Practices
+
+### 1. Type vs Interface Usage
+```typescript
+// ✅ DO: Use interface for object shapes (can be extended)
+interface UserProfile {
+  id: string;
+  name: string;
+}
+
+// ✅ DO: Use type for unions, intersections, and aliases
+type ButtonVariant = 'primary' | 'secondary' | 'danger';
+type UserID = string;
+type UserWithProfile = User & UserProfile;
+```
+
+### 2. Naming Conventions
+```typescript
+// ✅ DO: Use descriptive names with proper suffixes
+interface UserProps { }           // Component props
+interface UserState { }           // Component state
+interface UserData { }            // Data model
+type UserStatus = 'active' | 'inactive';  // Union types
+```
+
+### 3. Documentation
+```typescript
+// ✅ DO: Add JSDoc comments for complex types
+/**
+ * Represents a user in the system
+ * @property id - Unique identifier
+ * @property email - User's email address
+ * @property isAdmin - Whether user has admin privileges
+ */
+export interface User {
+  /** Unique identifier for the user */
+  id: number;
+  /** User's email address */
+  email: string;
+  /** Whether user has admin privileges */
+  isAdmin: boolean;
+}
+```
+
+### 4. Global Types
+```typescript
+// ✅ DO: Use global.d.ts for ambient declarations
+declare global {
+  interface Window {
+    analytics: Analytics;
+  }
+}
+
+export {}; // Make this a module
+```
+
+## 🚫 Anti-Patterns to Avoid
+
+```typescript
+// ❌ DON'T: Put all types in one massive file
+// types.ts - 500+ lines of mixed types
+
+// ❌ DON'T: Create types directory for every component
+// components/Button/types/ButtonTypes.ts
+
+// ❌ DON'T: Use 'any' type
+const user: any = getUser(); // Use proper typing instead
+
+// ❌ DON'T: Duplicate similar types across files
+interface UserData { id: string; name: string; }  // In user.ts
+interface UserInfo { id: string; name: string; }  // In profile.ts
+```
+
+## 🔄 Migration Strategy
+
+1. **Start with colocation** - Define types in component files first
+2. **Extract when necessary** - Move to shared types when used in multiple places
+3. **Refactor incrementally** - Don't rewrite everything at once
+4. **Use barrel exports** - Create index.ts files for clean imports
+
+## 📝 Import Examples
+
+```typescript
+// ✅ DO: Import from centralized types
+import { User, Product } from '@/types';
+
+// ✅ DO: Import component-specific types
+import { ButtonProps } from './Button.types';
+
+// ✅ DO: Use barrel exports for clean imports
+import { User, Product, ApiResponse } from '@/types';
+```
+
+## 🎯 Decision Tree
+
+```
+Is the type used by only one component?
+├─ Yes → Colocate in component file or .types.ts
+└─ No → Is it a core data model used throughout the app?
+    ├─ Yes → Centralized types directory
+    └─ No → Consider if it should be shared, then decide
+```
+
+This strategy provides the best balance between encapsulation and reusability while maintaining clear separation of concerns.
+description:
+globs:
+alwaysApply: true
+---

@@ -5,6 +5,7 @@
 // Setup type definitions for built-in Supabase Runtime APIs
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "@supabase/supabase-js";
+/// <reference types="https://deno.land/x/supabase_functions_js@1.0.0/edge-runtime.d.ts" />
 
 export const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -17,11 +18,13 @@ export function handleCors(req: Request) {
     return new Response("ok", { headers: corsHeaders });
   }
 }
-// How to fetch .env keys
-const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
-const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
 
-// const supabase = createClient(supabaseUrl, supabaseKey);
+// How to fetch .env keys (renamed to avoid SUPABASE_ prefix)
+const supabaseUrl = Deno.env.get("URL") || "";
+const supabaseKey = Deno.env.get("SERVICE_ROLE_KEY") || "";
+
+
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 console.log("Hello from Functions!");
 
@@ -34,6 +37,17 @@ Deno.serve(async (req) => {
     // Validate request method
     if (req.method !== "POST") {
       throw new Error(`Method ${req.method} not allowed`);
+    }
+
+    // Check for authorization header (required by Supabase Edge Runtime)
+    const authHeader = req.headers.get("authorization");
+    if (!authHeader) {
+      throw new Error("Missing authorization header. Use: Authorization: Bearer <your-anon-key>");
+    }
+
+    // For local development, accept any valid-looking Bearer token
+    if (!authHeader.startsWith("Bearer ")) {
+      throw new Error("Invalid authorization format. Use: Authorization: Bearer <your-anon-key>");
     }
 
     // Parse request body
