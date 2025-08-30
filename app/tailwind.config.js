@@ -16,6 +16,7 @@ module.exports = {
   	},
   	extend: {
   		colors: {
+  			// Existing shadcn/ui colors
   			border: 'hsl(var(--border))',
   			input: 'hsl(var(--input))',
   			ring: 'hsl(var(--ring))',
@@ -55,6 +56,27 @@ module.exports = {
   				'3': 'hsl(var(--chart-3))',
   				'4': 'hsl(var(--chart-4))',
   				'5': 'hsl(var(--chart-5))'
+  			},
+  			// Design system colors from DESIGNS.json
+  			brand: {
+  				primary: '#A961FF',
+  				'primary-dark': '#7F00FF'
+  			},
+  			surface: {
+  				primary: '#1E1C26',
+  				secondary: 'rgba(30, 28, 38, 0.75)',
+  				glass: 'rgba(25, 23, 36, 0.5)'
+  			},
+  			text: {
+  				primary: '#FFFFFF',
+  				secondary: '#A0A0A0',
+  				placeholder: '#6B6B6B'
+  			},
+  			borders: {
+  				primary: '#3A3842'
+  			},
+  			dark: {
+  				primary: '#0C0B10'
   			}
   		},
   		borderRadius: {
@@ -83,6 +105,10 @@ module.exports = {
   		animation: {
   			'accordion-down': 'accordion-down 0.2s ease-out',
   			'accordion-up': 'accordion-up 0.2s ease-out'
+  		},
+  		backgroundImage: {
+  			'brand-gradient': 'linear-gradient(90deg, #A961FF 0%, #7F00FF 100%)',
+  			'hero-gradient': 'radial-gradient(circle at top, rgba(94, 23, 235, 0.3) 0%, rgba(12, 11, 16, 0) 40%)'
   		}
   	}
   },
